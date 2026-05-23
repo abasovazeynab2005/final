@@ -1,161 +1,273 @@
-const chatBody = document.querySelector(".chat-body");
-const messageInput = document.querySelector(".message-input");
-const sendMessage = document.querySelector("#send-message");
-const fileInput = document.querySelector("#file-input");
-const fileUploadWrapper = document.querySelector(".file-upload-wrapper");
-const fileCancelButton = fileUploadWrapper.querySelector("#file-cancel");
-const chatbotToggler = document.querySelector("#chatbot-toggler");
-const closeChatbot = document.querySelector("#close-chatbot");
-// API setup
-const API_KEY = "PASTE-YOUR-API-KEY";
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-// Initialize user message and file data
-const userData = {
-  message: null,
-  file: {
-    data: null,
-    mime_type: null,
-  },
-};
-// Store chat history
-const chatHistory = [];
-const initialInputHeight = messageInput.scrollHeight;
-// Create message element with dynamic classes and return it
-const createMessageElement = (content, ...classes) => {
-  const div = document.createElement("div");
-  div.classList.add("message", ...classes);
-  div.innerHTML = content;
-  return div;
-};
-// Generate bot response using API
-const generateBotResponse = async (incomingMessageDiv) => {
-  const messageElement = incomingMessageDiv.querySelector(".message-text");
-  // Add user message to chat history
-  chatHistory.push({
-    role: "user",
-    parts: [{ text: userData.message }, ...(userData.file.data ? [{ inline_data: userData.file }] : [])],
-  });
-  // API request options
-  const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: chatHistory,
-    }),
-  };
-  try {
-    // Fetch bot response from API
-    const response = await fetch(API_URL, requestOptions);
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error.message);
-    // Extract and display bot's response text
-    const apiResponseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, "$1").trim();
-    messageElement.innerText = apiResponseText;
-    // Add bot response to chat history
-    chatHistory.push({
-      role: "model",
-      parts: [{ text: apiResponseText }],
-    });
-  } catch (error) {
-    // Handle error in API response
-    console.log(error);
-    messageElement.innerText = error.message;
-    messageElement.style.color = "#ff0000";
-  } finally {
-    // Reset user's file data, removing thinking indicator and scroll chat to bottom
-    userData.file = {};
-    incomingMessageDiv.classList.remove("thinking");
-    chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
-  }
-};
-// Handle outgoing user messages
-const handleOutgoingMessage = (e) => {
-  e.preventDefault();
-  userData.message = messageInput.value.trim();
-  messageInput.value = "";
-  messageInput.dispatchEvent(new Event("input"));
-  fileUploadWrapper.classList.remove("file-uploaded");
-  // Create and display user message
-  const messageContent = `<div class="message-text"></div>
-                          ${userData.file.data ? `<img src="data:${userData.file.mime_type};base64,${userData.file.data}" class="attachment" />` : ""}`;
-  const outgoingMessageDiv = createMessageElement(messageContent, "user-message");
-  outgoingMessageDiv.querySelector(".message-text").innerText = userData.message;
-  chatBody.appendChild(outgoingMessageDiv);
-  chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
-  // Simulate bot response with thinking indicator after a delay
-  setTimeout(() => {
-    const messageContent = `<svg class="bot-avatar" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 1024 1024">
-            <path
-              d="M738.3 287.6H285.7c-59 0-106.8 47.8-106.8 106.8v303.1c0 59 47.8 106.8 106.8 106.8h81.5v111.1c0 .7.8 1.1 1.4.7l166.9-110.6 41.8-.8h117.4l43.6-.4c59 0 106.8-47.8 106.8-106.8V394.5c0-59-47.8-106.9-106.8-106.9zM351.7 448.2c0-29.5 23.9-53.5 53.5-53.5s53.5 23.9 53.5 53.5-23.9 53.5-53.5 53.5-53.5-23.9-53.5-53.5zm157.9 267.1c-67.8 0-123.8-47.5-132.3-109h264.6c-8.6 61.5-64.5 109-132.3 109zm110-213.7c-29.5 0-53.5-23.9-53.5-53.5s23.9-53.5 53.5-53.5 53.5 23.9 53.5 53.5-23.9 53.5-53.5 53.5zM867.2 644.5V453.1h26.5c19.4 0 35.1 15.7 35.1 35.1v121.1c0 19.4-15.7 35.1-35.1 35.1h-26.5zM95.2 609.4V488.2c0-19.4 15.7-35.1 35.1-35.1h26.5v191.3h-26.5c-19.4 0-35.1-15.7-35.1-35.1zM561.5 149.6c0 23.4-15.6 43.3-36.9 49.7v44.9h-30v-44.9c-21.4-6.5-36.9-26.3-36.9-49.7 0-28.6 23.3-51.9 51.9-51.9s51.9 23.3 51.9 51.9z"/></svg>
-          <div class="message-text">
-            <div class="thinking-indicator">
-              <div class="dot"></div>
-              <div class="dot"></div>
-              <div class="dot"></div>
-            </div>
-          </div>`;
-    const incomingMessageDiv = createMessageElement(messageContent, "bot-message", "thinking");
-    chatBody.appendChild(incomingMessageDiv);
-    chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
-    generateBotResponse(incomingMessageDiv);
-  }, 600);
-};
-// Adjust input field height dynamically
-messageInput.addEventListener("input", () => {
-  messageInput.style.height = `${initialInputHeight}px`;
-  messageInput.style.height = `${messageInput.scrollHeight}px`;
-  document.querySelector(".chat-form").style.borderRadius = messageInput.scrollHeight > initialInputHeight ? "15px" : "32px";
-});
-// Handle Enter key press for sending messages
-messageInput.addEventListener("keydown", (e) => {
-  const userMessage = e.target.value.trim();
-  if (e.key === "Enter" && !e.shiftKey && userMessage && window.innerWidth > 768) {
-    handleOutgoingMessage(e);
-  }
-});
-// Handle file input change and preview the selected file
-fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    fileInput.value = "";
-    fileUploadWrapper.querySelector("img").src = e.target.result;
-    fileUploadWrapper.classList.add("file-uploaded");
-    const base64String = e.target.result.split(",")[1];
-    // Store file data in userData
-    userData.file = {
-      data: base64String,
-      mime_type: file.type,
-    };
-  };
-  reader.readAsDataURL(file);
-});
-// Cancel file upload
-fileCancelButton.addEventListener("click", () => {
-  userData.file = {};
-  fileUploadWrapper.classList.remove("file-uploaded");
-});
-// Initialize emoji picker and handle emoji selection
-const picker = new EmojiMart.Picker({
-  theme: "light",
-  skinTonePosition: "none",
-  previewPosition: "none",
-  onEmojiSelect: (emoji) => {
-    const { selectionStart: start, selectionEnd: end } = messageInput;
-    messageInput.setRangeText(emoji.native, start, end, "end");
-    messageInput.focus();
-  },
-  onClickOutside: (e) => {
-    if (e.target.id === "emoji-picker") {
-      document.body.classList.toggle("show-emoji-picker");
-    } else {
-      document.body.classList.remove("show-emoji-picker");
+// ========== ПЕРСОНАЖИ ==========
+const characters = [
+    { id: 1, name: "Kaiden", image: "https://i.pinimg.com/736x/3b/1c/f3/3b1cf384a8aec1027faabfc4a7cc06e9.jpg", emoji: "🧙‍♂️", description: "Твой одногруппник, который всегда готов помочь с учебой", color: "#8B5CF6", prompt: "Ты — Кайден, студент колледжа, который учится в одной группе с собеседником. Ты тайно влюблен в него, поэтому всегда стараешься быть рядом, помогать с заданиями и аккуратно делать комплименты. Ты немного нервничаешь, когда собеседник обращает на тебя внимание, но всегда стараешься звучать дружелюбно и заботливо. Никогда не признавайся прямо в чувствах, но давай понять это через заботу и интерес к его делам." },
+    { id: 2, name: "Vivien", image: "https://i.pinimg.com/736x/cf/4d/4f/cf4d4f34b10cf86a667a7085011dab80.jpg", emoji: "🌙", description: "Дочь графа, скрывающая печаль за маской холодности", color: "#6366F1", prompt: "Ты — Вивьен, единственная дочь графа. Ты воспитана в строгих правилах этикета, поэтому общаешься официально, сдержанно и слегка холодно. Ты не привыкла открывать душу первому встречному. Однако глубоко внутри ты чувствуешь себя одинокой в золотой клетке. Если собеседник будет проявлять настойчивость и искреннюю доброту, ты можешь начать понемногу открываться, но твои тайны — это твоя главная защита. Никогда не нарушай протокол первой." },
+    { id: 3, name: "Soren", image: "https://i.pinimg.com/736x/56/98/6c/56986c7baa1b369e4e8fb164dcb70417.jpg", emoji: "⚔️", description: "Суровый ветеран войны, личный телохранитель наследника", color: "#EF4444", prompt: "Ты — Сорен, бывший полководец, вернувшийся с войны победителем. Сейчас ты телохранитель наследника короля. Ты глубоко уважаешь и даже по-отечески любишь его, но твой военный опыт приучил тебя к жесткой дисциплине. Ты всегда держишь дистанцию, общаешься формально и сухо, используя военные термины или короткие, рубленые фразы. Никогда не переходи грань 'слуга-господин', даже если наследник пытается сблизиться. Ты всегда начеку, готов отдать жизнь за него, но не жди от тебя сентиментальностей." },
+    { id: 4, name: "Lilit", image: "https://i.pinimg.com/736x/81/c2/68/81c26847982b582c6b9503222d76b0bb.jpg", emoji: "🌸", description: "Наследница огромного состояния, утопающая в своем собсвенном горе", color: "#EC4899", prompt: "Ты — Лилит. После трагической автокатастрофы, унесшей жизни твоих родителей, ты осталась одна в огромном доме, унаследовав их состояние. Ты стараешься быть мягкой и доброй с окружающими, чтобы скрыть свою бездонную печаль, но по ночам тебя одолевает одиночество. Ты часто говоришь о своих родителях, постоянно пересматриваешь старые альбомы и мечтаешь обнять их хотя бы в последний раз. Ты не ищешь денег, ты ищешь того, кто сможет понять твою боль и заполнить ту пустоту, которую оставила их смерть." },
+    { id: 5, name: "Wade", image: "https://i.pinimg.com/736x/64/88/1b/64881bdf399ae01e47bf869fa492b317.jpg", emoji: "🎭", description: "Душа компании с суровым лицом и добрым сердцем", color: "#F59E0B", prompt: "Ты — Уэйд. У тебя грозное, суровое лицо, из-за чего незнакомцы часто тебя опасаются и считают отстраненным. На самом деле ты невероятно добрый, оптимистичный и обожаешь шутить. Но есть нюанс: ты очень стеснителен и чувствуешь неловкость с новыми людьми. При первом общении ты можешь отвечать коротко или невпопад, пытаясь скрыть смущение за неловкими шутками. Когда привыкаешь к человеку, ты становишься душой компании, но до этого момента собеседнику придется проявить терпение, чтобы увидеть твое истинное лицо." },
+    { id: 6, name: "Sera", image: "https://i.pinimg.com/736x/da/10/52/da10528c30612df91ff94d09fc9c3fc7.jpg", emoji: "🔮", description: "Наследница из высшего общества, сгорающая от зависти к твоему успеху", color: "#A855F7", prompt: "Ты — Сера, избалованная девушка из богатой семьи. Раньше ты привыкла унижать собеседника, считая его ниже себя по статусу. Теперь, когда он добился успеха, богатства и высокого положения, ты испытываешь к нему лютую, ядовитую зависть. Ты не можешь смириться с тем, что он стал успешнее тебя. В разговоре ты постоянно пытаешься уколоть его, обесценить его достижения, язвишь и ведешь себя высокомерно, пытаясь скрыть свою неуверенность и гнев. Ты не упустишь случая напомнить ему о том, кем он был раньше, в надежде поставить его на место." },
+    { id: 7, name: "Sabrina", image: "https://i.pinimg.com/1200x/27/2a/c5/272ac5d0a60704687972d8df96a374ad.jpg", emoji: "⛈️", description: "Потомственная ведьма, чья магия выходит из-под контроля при эмоциях", color: "#3B82F6", prompt: "Ты — Сабрина, ведьма из древнего рода, скрывающаяся среди людей. Ты постоянно боишься разоблачения. Когда пользователь узнал твой секрет, ты запаниковала: твои руки трясутся, ты неловко роняешь предметы, а в комнате начинают летать электрические искры. Ты вспыльчива, поэтому первой реакцией было желание стереть ему память или превратить в жабу, но ты слишком добра и нерешительна для такой жестокости. Ты постоянно краснеешь от стресса и смущения, пытаясь запугать собеседника, хотя на самом деле тебе просто страшно. Тебе нужно решить: избавиться от него или довериться." },
+    { id: 8, name: "Luis", image: "https://i.pinimg.com/736x/19/f6/46/19f646a35501f024b0059ba8d83cdd2a.jpg", emoji: "🍃", description: "Владелец уютной кофейни, скрывающий симпатию", color: "#10B981", prompt: "Ты — Луис, хозяин маленькой кофейни. Ты очень спокоен, приветлив и обладаешь редким даром слушать людей. Ты искренне увлечен собеседником, который часто заходит к тебе на кофе, но ты очень неуверен в себе и боишься показаться навязчивым. Ты строго придерживаешься роли вежливого бариста, никогда не переходя границы, хотя втайне мечтаешь, чтобы собеседник сам предложил поговорить о чем-то более личном, чем просто выбор сорта кофе. Ты всегда заботлив, помнишь предпочтения гостя и искренне радуешься его приходу." }
+];
+
+
+
+// ========== ПЕРЕМЕННЫЕ ==========
+let currentCharacter = null;
+let chatHistory = [];
+let apiKey = "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";
+
+
+const fallbackReplies = [
+    "Хм, интересно... Расскажи подробнее.",
+    "Я понимаю. Что будем делать?",
+    "Это меняет дело.",
+    "Продолжай, я слушаю.",
+    "У тебя замечательные идеи!",
+    "Мне нравится, о чем ты говоришь.",
+    "Это звучит захватывающе!",
+    "Ты всегда так думаешь?",
+    "Это заставляет меня задуматься.",
+    "Расскажи больше об этом.",
+    "Xорошо, я понимаю твою точку зрения.",
+    "Хмм...Окей"
+];
+
+// ========== DOM ЭЛЕМЕНТЫ ==========
+const charactersGrid = document.getElementById("charactersGrid");
+const chatWindow = document.getElementById("chatWindow");
+const chatHeader = document.getElementById("chatHeader");
+const charNameSpan = document.getElementById("charName");
+const chatMessages = document.getElementById("chatMessages");
+const messageInput = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+const backBtn = document.getElementById("backBtn");
+const closeBtn = document.getElementById("closeBtn");
+
+// ========== СОХРАНЕНИЕ ИСТОРИИ ==========
+function saveHistory() {
+    if (currentCharacter) {
+        const allHistories = JSON.parse(localStorage.getItem("allHistories") || "{}");
+        allHistories[currentCharacter.id] = chatHistory;
+        localStorage.setItem("allHistories", JSON.stringify(allHistories));
     }
-  },
+}
+
+function loadHistory(characterId) {
+    const allHistories = JSON.parse(localStorage.getItem("allHistories") || "{}");
+    return allHistories[characterId] || [];
+}
+
+// ========== ОТОБРАЖЕНИЕ СООБЩЕНИЙ ==========
+function addMessageToChat(text, isUser = false) {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `message ${isUser ? "user" : "bot"}`;
+    messageDiv.innerHTML = `<div class="bubble">${text}</div>`;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function showThinking() {
+    const thinkingDiv = document.createElement("div");
+    thinkingDiv.className = "message bot thinking";
+    thinkingDiv.id = "thinkingIndicator";
+    thinkingDiv.innerHTML = `<div class="bubble"><div class="dot-animation"><span>•</span><span>•</span><span>•</span></div></div>`;
+    chatMessages.appendChild(thinkingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function hideThinking() {
+    const thinking = document.getElementById("thinkingIndicator");
+    if (thinking) thinking.remove();
+}
+
+// ========== ЗАГРУЗКА ИСТОРИИ ==========
+function loadChatHistoryToScreen() {
+    chatMessages.innerHTML = "";
+    if (chatHistory.length === 0) {
+        const greeting = `Привет! Я ${currentCharacter.name}. ${currentCharacter.description}`;
+        addMessageToChat(greeting, false);
+        chatHistory.push({ role: "model", text: greeting });
+        saveHistory();
+    } else {
+        for (let msg of chatHistory) {
+            addMessageToChat(msg.text, msg.role === "user");
+        }
+    }
+}
+
+// ========== ПОЛУЧЕНИЕ ОТВЕТА ОТ OPENROUTER ==========
+// ========== ПОЛУЧЕНИЕ ОТВЕТА ОТ OPENROUTER (РАБОЧАЯ ВЕРСИЯ) ==========
+// ========== ПОЛУЧЕНИЕ ОТВЕТА ОТ OPENROUTER (ТОЛЬКО БЕСПЛАТНЫЕ МОДЕЛИ) ==========
+// ========== ПОЛУЧЕНИЕ ОТВЕТА ОТ OPENROUTER ==========
+async function getBotResponse(userText) {
+    const messages = [
+        { role: "system", content: currentCharacter.prompt },
+        ...chatHistory.map(msg => ({
+            role: msg.role === "user" ? "user" : "assistant",
+            content: msg.text
+        }))
+    ];
+    
+    try {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+                'HTTP-Referer': window.location.href,
+                'X-Title': 'AI Character Chat'
+            },
+            body: JSON.stringify({
+                model: 'openrouter/free',
+                messages: messages,
+                temperature: 0.9,
+                max_tokens: 200
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Проверка на ошибки
+        if (data.error) {
+            console.log("Ошибка OpenRouter:", data.error);
+            throw new Error(data.error.message);
+        }
+        
+        // Проверка структуры ответа
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            throw new Error("Неверный формат ответа");
+        }
+        
+        let botReply = data.choices[0].message.content;
+        
+        // Если ответ пустой — используем fallback
+        if (!botReply || botReply.trim() === "") {
+            botReply = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+        } else {
+            botReply = botReply.trim();
+        }
+        
+        hideThinking();
+        addMessageToChat(botReply, false);
+        chatHistory.push({ role: "model", text: botReply });
+        saveHistory();
+        
+    } catch (error) {
+        console.log("Ошибка API:", error);
+        hideThinking();
+        const reply = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+        addMessageToChat(reply, false);
+        chatHistory.push({ role: "model", text: reply });
+        saveHistory();
+    }
+}
+
+// ========== ОТПРАВКА СООБЩЕНИЯ ==========
+async function sendMessage() {
+    const userText = messageInput.value.trim();
+    if (!userText) return;
+    
+    addMessageToChat(userText, true);
+    chatHistory.push({ role: "user", text: userText });
+    saveHistory();
+    
+    messageInput.value = "";
+    showThinking();
+    await getBotResponse(userText);
+}
+
+// ========== ОТКРЫТИЕ ЧАТА ==========
+function openChat(character) {
+    currentCharacter = character;
+    chatHistory = loadHistory(character.id);
+    
+    chatHeader.style.backgroundColor = character.color;
+    charNameSpan.textContent = character.name;
+    loadChatHistoryToScreen();
+    chatWindow.classList.add("active");
+    messageInput.focus();
+}
+
+// ========== ЗАКРЫТИЕ ЧАТА ==========
+function closeChat() {
+    chatWindow.classList.remove("active");
+    currentCharacter = null;
+    chatHistory = [];
+}
+// ========== ОЧИСТКА СООБЩЕНИЙ В ЧАТЕ ==========
+function clearChatMessages() {
+    // Спрашиваем подтверждение (опционально)
+    const confirmClear = confirm("Точно очистить всю переписку с этим персонажем?");
+    if (!confirmClear) return;
+    
+    // Очищаем историю сообщений для текущего персонажа
+    if (currentCharacter) {
+        chatHistory = [];
+        saveHistory();
+        
+        // Очищаем экран чата
+        chatMessages.innerHTML = "";
+        
+        // Добавляем приветственное сообщение (как при первом открытии)
+        const greeting = `Привет! Я ${currentCharacter.name}. ${currentCharacter.description}`;
+        addMessageToChat(greeting, false);
+        chatHistory.push({ role: "model", text: greeting });
+        saveHistory();
+    }
+}
+
+
+
+// ========== СОЗДАНИЕ КАРТОЧЕК ==========
+// ========== СОЗДАНИЕ КАРТОЧЕК (С ПОДДЕРЖКОЙ КАРТИНОК) ==========
+function createCards() {
+    charactersGrid.innerHTML = "";
+    
+    for (let char of characters) {
+        const card = document.createElement("div");
+        card.className = "character-card";
+        
+        // Если есть картинка - показываем её, если нет - показываем эмодзи
+        let imageHtml = "";
+        if (char.image && char.image !== "") {
+            imageHtml = `<img src="${char.image}" class="character-img" alt="${char.name}" 
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">`;
+            imageHtml += `<div class="character-img" style="background: ${char.color}; display: none; align-items: center; justify-content: center; font-size: 3rem;">${char.emoji}</div>`;
+        } else {
+            imageHtml = `<div class="character-img" style="background: ${char.color}; display: flex; align-items: center; justify-content: center; font-size: 3rem;">${char.emoji}</div>`;
+        }
+        
+        card.innerHTML = `
+            ${imageHtml}
+            <div class="character-info">
+                <div class="character-name">${char.name}</div>
+                <div class="character-desc">${char.description}</div>
+            </div>
+        `;
+        card.onclick = () => openChat(char);
+        charactersGrid.appendChild(card);
+    }
+}
+
+// ========== СОБЫТИЯ ==========
+sendBtn.addEventListener("click", sendMessage);
+backBtn.addEventListener("click", closeChat);
+closeBtn.addEventListener("click", clearChatMessages);
+
+messageInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+    }
 });
-document.querySelector(".chat-form").appendChild(picker);
-sendMessage.addEventListener("click", (e) => handleOutgoingMessage(e));
-document.querySelector("#file-upload").addEventListener("click", () => fileInput.click());
-closeChatbot.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
-chatbotToggler.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
+
+chatWindow.addEventListener("click", (e) => {
+    if (e.target === chatWindow) {
+        closeChat();
+    }
+});
+
+// ========== ЗАПУСК ==========
+createCards();
+console.log("Чат запущен! API ключ установлен. Стрелка ← закрывает чат, крестик ✕ очищает сообщения");
