@@ -42,11 +42,10 @@ const characters = [
     }
 ];
 
-
-//  ПЕРЕМЕННЫЕ 
+// ПЕРЕМЕННЫЕ 
 let currentCharacter = null;
 let chatHistory = [];
-let apiKey =myKey;
+let apiKey = myKey;
 
 const fallbackReplies = [
     "Хм, интересно... Расскажи подробнее.",
@@ -59,7 +58,7 @@ const fallbackReplies = [
     "Ты всегда так думаешь?",
     "Это заставляет меня задуматься.",
     "Расскажи больше об этом.",
-    "Xорошо, я понимаю твою точку зрения.",
+    "Хорошо, я понимаю твою точку зрения.",
     "Хмм...Окей"
 ];
 
@@ -88,7 +87,7 @@ function loadHistory(characterId) {
     return allHistories[characterId] || [];
 }
 
-//  ОТОБРАЖЕНИЕ СООБЩЕНИЙ 
+// ОТОБРАЖЕНИЕ СООБЩЕНИЙ 
 function addMessageToChat(text, isUser = false) {
     const messageDiv = document.createElement("div");
     messageDiv.className = `message ${isUser ? "user" : "bot"}`;
@@ -126,42 +125,43 @@ function loadChatHistoryToScreen() {
     }
 }
 
-
-//  ПОЛУЧЕНИЕ ОТВЕТА ОТ OPENROUTER (РАБОЧАЯ ВЕРСИЯ)
-//ПОЛУЧЕНИЕ ОТВЕТА ОТ OPENROUTER (ТОЛЬКО БЕСПЛАТНЫЕ МОДЕЛИ) 
-
-async function getBotResponse(userText) {
+// ПОЛУЧЕНИЕ ОТВЕТА ОТ OPENROUTER (ВЕРСИЯ С .then)
+function getBotResponse(userText) {
+    // Добавляем текущее сообщение пользователя в массив messages
     const messages = [
         { role: "system", content: currentCharacter.prompt },
         ...chatHistory.map(msg => ({
             role: msg.role === "user" ? "user" : "assistant",
             content: msg.text
-        }))
+        })),
+        { role: "user", content: userText } // Добавляем текущее сообщение
     ];
     
-    try {
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-                'HTTP-Referer': window.location.href,
-                'X-Title': 'AI Character Chat'
+    fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+            'HTTP-Referer': window.location.href,
+            'X-Title': 'AI Character Chat'
+        },
+        body: JSON.stringify({
+            model: 'openrouter/free',
+            messages: messages,
+            "provider": {
+                "order": ["OpenRouter", "Google", "Together"] 
             },
-            body: JSON.stringify({
-                model: 'openrouter/free',
-                
-                messages: messages,
-                "provider": {
-      "order": ["OpenRouter", "Google", "Together"] 
-    },
-                temperature: 0.9,
-                max_tokens: 200
-            })
-        });
-        
-        const data = await response.json();
-        
+            temperature: 0.9,
+            max_tokens: 200
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
         // Проверка на ошибки
         if (data.error) {
             console.log("Ошибка OpenRouter:", data.error);
@@ -186,19 +186,19 @@ async function getBotResponse(userText) {
         addMessageToChat(botReply, false);
         chatHistory.push({ role: "model", text: botReply });
         saveHistory();
-        
-    } catch (error) {
+    })
+    .catch(error => {
         console.log("Ошибка API:", error);
         hideThinking();
         const reply = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
         addMessageToChat(reply, false);
         chatHistory.push({ role: "model", text: reply });
         saveHistory();
-    }
+    });
 }
 
-//  ОТПРАВКА СООБЩЕНИЯ 
-async function sendMessage() {
+// ОТПРАВКА СООБЩЕНИЯ 
+function sendMessage() {
     const userText = messageInput.value.trim();
     if (!userText) return;
     
@@ -208,10 +208,10 @@ async function sendMessage() {
     
     messageInput.value = "";
     showThinking();
-    await getBotResponse(userText);
+    getBotResponse(userText);
 }
 
-//  ОТКРЫТИЕ ЧАТА 
+// ОТКРЫТИЕ ЧАТА 
 function openChat(character) {
     currentCharacter = character;
     chatHistory = loadHistory(character.id);
@@ -229,6 +229,7 @@ function closeChat() {
     currentCharacter = null;
     chatHistory = [];
 }
+
 // ОЧИСТКА СООБЩЕНИЙ В ЧАТЕ 
 function clearChatMessages() {
     // Спрашиваем подтверждение (опционально)
@@ -251,9 +252,6 @@ function clearChatMessages() {
     }
 }
 
-
-
-// СОЗДАНИЕ КАРТОЧЕК 
 // СОЗДАНИЕ КАРТОЧЕК (С ПОДДЕРЖКОЙ КАРТИНОК) 
 function createCards() {
     charactersGrid.innerHTML = "";
@@ -284,7 +282,7 @@ function createCards() {
     }
 }
 
-//  СОБЫТИЯ 
+// СОБЫТИЯ 
 sendBtn.addEventListener("click", sendMessage);
 backBtn.addEventListener("click", closeChat);
 closeBtn.addEventListener("click", clearChatMessages);
@@ -302,6 +300,6 @@ chatWindow.addEventListener("click", (e) => {
     }
 });
 
-//  ЗАПУСК 
+// ЗАПУСК 
 createCards();
 console.log("Чат запущен! API ключ установлен. Стрелка ← закрывает чат, крестик ✕ очищает сообщения");
