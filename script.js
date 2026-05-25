@@ -260,23 +260,18 @@ function createCards() {
         const card = document.createElement("div");
         card.className = "character-card";
         
-        // Если есть картинка - показываем её, если нет - показываем эмодзи
-        let imageHtml = "";
-        if (char.image && char.image !== "") {
-            imageHtml = `<img src="${char.image}" class="character-img" alt="${char.name}" 
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">`;
-            imageHtml += `<div class="character-img" style="background: ${char.color}; display: none; align-items: center; justify-content: center; font-size: 3rem;">${char.emoji}</div>`;
-        } else {
-            imageHtml = `<div class="character-img" style="background: ${char.color}; display: flex; align-items: center; justify-content: center; font-size: 3rem;">${char.emoji}</div>`;
-        }
+        // Используем встроенный placeholder, если у персонажа нет ссылки на картинку
+        const imageSrc = char.image || "https://via.placeholder.com/150?text=No+Image";
         
         card.innerHTML = `
-            ${imageHtml}
+            <img src="${imageSrc}" class="character-img" alt="${char.name}" 
+                 onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
             <div class="character-info">
                 <div class="character-name">${char.name}</div>
                 <div class="character-desc">${char.description}</div>
             </div>
         `;
+        
         card.onclick = () => openChat(char);
         charactersGrid.appendChild(card);
     }
