@@ -285,8 +285,11 @@ function createCards() {
         const card = document.createElement("div");
         card.className = "character-card";
         
+        // Передаем фолбек: если картинка не загрузится, отобразится красивый блок с эмодзи
         card.innerHTML = `
-            <img src="${char.image}" class="character-img" alt="${char.name}">
+            <div class="character-img" style="background: linear-gradient(135deg, ${char.color}, #16213e)">
+                <img src="${char.image}" alt="${char.name}" onerror="this.style.display='none'; this.parentElement.innerText='${char.emoji}'" style="width:100%; height:100%; object-fit:cover;">
+            </div>
             <div class="character-info">
                 <div class="character-name">${char.name}</div>
                 <div class="character-desc">${char.description}</div>
