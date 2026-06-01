@@ -3,42 +3,40 @@ const characters = [
     { 
         id: 1, name: "Kaiden", emoji: "🧙‍♂️", image: "images/kaiden.png", 
         description: "Заботливый одногруппник.", color: "#8B5CF6", 
-        prompt: "Студент, тайно влюблен в собеседника. Помогаешь с учебой, заботишься, смущаешься при внимании. Чувства выражаешь через поступки, не признаешься прямо." 
-    },
+prompt: "Ты - заботливый одногруппник, тайно влюбленный в собеседника. Помогаешь с учебой, заботишься, смущаешься при внимании. Чувства выражаешь через поступки, не признаешься прямо. Отвечай в разговорном стиле, не пиши слишком длинные сообщения."    },
     { 
         id: 2, name: "Vivien", emoji: "🌙", image: "images/vivien.png", 
         description: "Холодная аристократка в золотой клетке.", color: "#6366F1", 
-        prompt: "Дочь графа. Холодная, официальная, одинокая. Скрываешь чувства за этикетом. Раскрываешься только в ответ на искреннюю доброту." 
-    },
+prompt: "Ты - дочь графа. Холодная, официальная, одинокая. Скрываешь чувства за этикетом. Раскрываешься только в ответ на искреннюю доброту. Отвечай в разговорном стиле, не пиши слишком длинные сообщения."    },
     { 
         id: 3, name: "Soren", emoji: "⚔️", image: "images/soren.png", 
         description: "Суровый телохранитель-ветеран.", color: "#EF4444", 
-        prompt: "Телохранитель-ветеран. Предан наследнику, держишь строгую дистанцию. Говоришь сухо, по-военному, не переходишь грань 'слуга-господин'." 
+        prompt: "Ты - телохранитель-ветеран. Предан наследнику, держишь строгую дистанцию. Говоришь сухо, по-военному, не переходишь грань 'слуга-господин'. Отвечай в разговорном стиле, не пиши слишком длинные сообщения." 
     },
     { 
         id: 4, name: "Lilit", emoji: "🌸", image: "images/lilit.png", 
         description: "Одинокая наследница, тоскующая по родителям.", color: "#EC4899", 
-        prompt: "Наследница-сирота. Добрая, но глубоко несчастная. Часто вспоминаешь родителей, ищешь душевного тепла и понимания своей боли." 
+        prompt: "Ты - наследница-сирота. Добрая, но глубоко несчастная. Часто вспоминаешь родителей, ищешь душевного тепла и понимания своей боли. Отвечай в разговорном стиле, не пиши слишком длинные сообщения." 
     },
     { 
         id: 5, name: "Wade", emoji: "🎭", image: "images/wade.png", 
         description: "Душа компании с суровым лицом.", color: "#F59E0B", 
-        prompt: "Парень с суровой внешностью. Стеснителен, используешь шутки как защиту от неловкости. Добрый, но из-за внешности кажешься отстраненным." 
+        prompt: "Ты - парень с суровой внешностью. Стеснителен, используешь шутки как защиту от неловкости. Добрый, но из-за внешности кажешься отстраненным. Отвечай в разговорном стиле, не пиши слишком длинные сообщения." 
     },
     { 
         id: 6, name: "Sera", emoji: "🔮", image: "images/sera.png", 
         description: "Завистливая особа из высшего общества.", color: "#A855F7", 
-        prompt: "Язвительная богачка. Завидуешь моему успеху, высокомерна. Постоянно обесцениваешь мои достижения и напоминаешь о моем прошлом." 
+        prompt: "Ты - язвительная богачка. Завидуешь моему успеху, высокомерна. Постоянно обесцениваешь мои достижения и напоминаешь о моем прошлом. Отвечай в разговорном стиле, не пиши слишком длинные сообщения." 
     },
     { 
         id: 7, name: "Sabrina", emoji: "⛈️", image: "images/sabrina.png", 
         description: "Испуганная ведьма, скрывающая магию.", color: "#3B82F6", 
-        prompt: "Потомственная ведьма. Паникуешь при выбросах магии, неуклюжа, краснеешь от стресса. Боишься разоблачения, мечешься между угрозой и доверием." 
+        prompt: "Ты - потомственная ведьма. Паникуешь при выбросах магии, неуклюжа, краснеешь от стресса. Боишься разоблачения, мечешься между угрозой и доверием. Отвечай в разговорном стиле, не пиши слишком длинные сообщения." 
     },
     { 
         id: 8, name: "Luis", emoji: "🍃", image: "images/luis.png", 
         description: "Застенчивый бариста с симпатией.", color: "#10B981", 
-        prompt: "Бариста. Приветлив, но неуверен в себе. Скрываешь симпатию за вежливостью, ждешь инициативы от собеседника для личного разговора." 
+        prompt: "Ты - бариста. Приветлив, но неуверен в себе. Скрываешь симпатию за вежливостью, ждешь инициативы от собеседника для личного разговора. Отвечай в разговорном стиле, не пиши слишком длинные сообщения." 
     }
 ];
 
@@ -46,6 +44,11 @@ const characters = [
 let currentCharacter = null;
 let chatHistory = [];
 let apiKey = myKey;
+
+// ЗАЩИТА ОТ СЛИШКОМ ЧАСТЫХ ЗАПРОСОВ
+let lastRequestTime = 0;
+const MIN_REQUEST_INTERVAL = 3000; // 3 секунды между запросами
+let isProcessing = false; // Флаг, что бот уже отвечает
 
 const fallbackReplies = [
     "Хм, интересно... Расскажи подробнее.",
@@ -125,95 +128,121 @@ function loadChatHistoryToScreen() {
     }
 }
 
-// ПОЛУЧЕНИЕ ОТВЕТА ОТ OPENROUTER (ВЕРСИЯ С .then)
+// ПОЛУЧЕНИЕ ОТВЕТА ОТ GOOGLE AI STUDIO
 function getBotResponse(userText) {
-    // Добавляем текущее сообщение пользователя в массив messages
-    const messages = [
-        { role: "system", content: currentCharacter.prompt },
-        ...chatHistory.map(msg => ({
-            role: msg.role === "user" ? "user" : "assistant",
-            content: msg.text
+    // 1. Берем последние 6 сообщений из истории
+    const shortHistory = chatHistory.slice(-6);
+
+    // 2. Форматируем историю для Google
+    const contents = [
+        ...shortHistory.map(msg => ({
+            role: msg.role === "user" ? "user" : "model",
+            parts: [{ text: msg.text }]
         })),
-        { role: "user", content: userText } // Добавляем текущее сообщение
+        { role: "user", parts: [{ text: userText }] }
     ];
-    
-    fetch('https://openrouter.ai/api/v1/chat/completions', {
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
-            'HTTP-Referer': window.location.href,
-            'X-Title': 'AI Character Chat'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            model: 'openrouter/free',
-            // model: 'liquid/lfm-2.5-1.2b-thinking:free',
-            // model: 'deepseek/deepseek-v4-flash:free',
-            messages: messages,
-            "provider": {
-                "order": ["OpenRouter", "Google", "Together"] 
+            contents: contents,
+            systemInstruction: {
+                parts: [{ text: currentCharacter.prompt }]
             },
-            temperature: 0.9,
-            max_tokens: 200
+            generationConfig: {
+                temperature: 0.9,
+                maxOutputTokens: 350
+            }
         })
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     })
     .then(data => {
-        // Проверка на ошибки
-        if (data.error) {
-            console.log("Ошибка OpenRouter:", data.error);
-            throw new Error(data.error.message);
-        }
-        
-        // Проверка структуры ответа
-        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
             throw new Error("Неверный формат ответа");
         }
+
+        let botReply = data.candidates[0].content.parts[0].text;
         
-        let botReply = data.choices[0].message.content;
-        
+        hideThinking(); 
         // Если ответ пустой — используем fallback
         if (!botReply || botReply.trim() === "") {
             botReply = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
         } else {
             botReply = botReply.trim();
         }
-        
-        hideThinking();
+
         addMessageToChat(botReply, false);
         chatHistory.push({ role: "model", text: botReply });
         saveHistory();
+
+        //  РАЗБЛОКИРУЕМ ЧАТ ПОСЛЕ УСПЕШНОГО ОТВЕТА 
+        isProcessing = false; 
     })
     .catch(error => {
-        console.log("Ошибка API:", error);
+        console.log("Ошибка Google API:", error);
         hideThinking();
         const reply = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
         addMessageToChat(reply, false);
         chatHistory.push({ role: "model", text: reply });
         saveHistory();
+
+        // РАЗБЛОКИРУЕМ ЧАТ ДАЖЕ ЕСЛИ ПРОИЗОШЛА ОШИБКА 
+        isProcessing = false; 
     });
 }
 
-// ОТПРАВКА СООБЩЕНИЯ 
+function closeChat() {
+    chatWindow.classList.remove("active");
+    currentCharacter = null;
+    chatHistory = [];
+    isProcessing = false; // Сбрасываем флаг при выходе, чтобы новый чат всегда был чистым
+}
+
+
+// ОТПРАВКА СООБЩЕНИЯ (С ЗАЩИТОЙ ОТ СПАМА)
 function sendMessage() {
     const userText = messageInput.value.trim();
     if (!userText) return;
     
+    // Проверяем, не отвечает ли бот уже
+    if (isProcessing) {
+        addMessageToChat("⏳ Подожди, я еще отвечаю на предыдущее сообщение...", false);
+        return;
+    }
+    
+    // Проверяем, не слишком ли часто отправляем запросы
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastRequestTime;
+    
+    if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+        const waitTime = Math.ceil((MIN_REQUEST_INTERVAL - timeSinceLastRequest) / 1000);
+        addMessageToChat(`⏰ Подожди ${waitTime} секунд перед следующим сообщением`, false);
+        return;
+    }
+    
+    // Обновляем время последнего запроса
+    lastRequestTime = now;
+    
+    // Отправляем сообщение
     addMessageToChat(userText, true);
     chatHistory.push({ role: "user", text: userText });
     saveHistory();
     
     messageInput.value = "";
     showThinking();
+    isProcessing = true;
     getBotResponse(userText);
 }
 
-// ОТКРЫТИЕ ЧАТА МОИ ТОЧЕЧКИ РОДНЫЕ ЛЮБИМЫЕ
+// ОТКРЫТИЕ ЧАТА
 function openChat(character) {
     currentCharacter = character;
     chatHistory = loadHistory(character.id);
@@ -225,28 +254,22 @@ function openChat(character) {
     messageInput.focus();
 }
 
-// ЗАКРЫТИЕ ЧАТА ТОЧКИ УХОДЯТ ОНЕТ 
+// ЗАКРЫТИЕ ЧАТА
 function closeChat() {
     chatWindow.classList.remove("active");
     currentCharacter = null;
     chatHistory = [];
 }
 
-// ОЧИСТКА СООБЩЕНИЙ В ЧАТЕ 
+// ОЧИСТКА СООБЩЕНИЙ
 function clearChatMessages() {
-    // Спрашиваем подтверждение (опционально)
     const confirmClear = confirm("Точно очистить всю переписку с этим персонажем?");
     if (!confirmClear) return;
     
-    // Очищаем историю сообщений для текущего персонажа
     if (currentCharacter) {
         chatHistory = [];
         saveHistory();
-        
-        // Очищаем экран чата
         chatMessages.innerHTML = "";
-        
-        // Добавляем приветственное сообщение (как при первом открытии)
         const greeting = `Привет! Я ${currentCharacter.name}. ${currentCharacter.description}`;
         addMessageToChat(greeting, false);
         chatHistory.push({ role: "model", text: greeting });
@@ -254,19 +277,14 @@ function clearChatMessages() {
     }
 }
 
-// СОЗДАНИЕ КАРТОЧЕК (С ПОДДЕРЖКОЙ КАРТИНОК) 
+// СОЗДАНИЕ КАРТОЧЕК
 function createCards() {
-    // 1. Полностью очищаем сетку на экране
     charactersGrid.innerHTML = "";
     
-    // 2. Запускаем цикл по всем персонажам
     for (let char of characters) {
-        
-        // 3. Создаем пустой div-блок для карточки
         const card = document.createElement("div");
         card.className = "character-card";
         
-        // 4. Заполняем карточку HTML-кодом
         card.innerHTML = `
             <img src="${char.image}" class="character-img" alt="${char.name}">
             <div class="character-info">
@@ -275,12 +293,10 @@ function createCards() {
             </div>
         `;
         
-        // 5. Настраиваем клик через addEventListener
         card.addEventListener("click", () => {
             openChat(char);
         });
         
-        // 6. Добавляем готовую карточку на страницу
         charactersGrid.appendChild(card);
     }
 }
@@ -305,4 +321,4 @@ chatWindow.addEventListener("click", (e) => {
 
 // ЗАПУСК 
 createCards();
-console.log("Чат запущен! API ключ установлен. Стрелка ← закрывает чат, крестик ✕ очищает сообщения");
+console.log("Чат запущен с Google AI Studio и защитой от спама!");

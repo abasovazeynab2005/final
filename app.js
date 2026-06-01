@@ -46,6 +46,8 @@ const characters = [
 let currentCharacter = null;
 let chatHistory = [];
 let apiKey = myKey;
+let isBotTyping = false;          // Печатает ли бот
+
 
 const fallbackReplies = [
     "Хм, интересно... Расскажи подробнее.",
@@ -84,7 +86,7 @@ function saveHistory() {
 
 function loadHistory(characterId) {
     const allHistories = JSON.parse(localStorage.getItem("allHistories") || "{}");
-    return allHistories[characterId] || [];
+    return allHistories[characterId] || []; // Если истории нет - пустой массив
 }
 
 // ОТОБРАЖЕНИЕ СООБЩЕНИЙ 
@@ -96,6 +98,7 @@ function addMessageToChat(text, isUser = false) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+//2 dots
 function showThinking() {
     const thinkingDiv = document.createElement("div");
     thinkingDiv.className = "message bot thinking";
