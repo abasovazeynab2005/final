@@ -1,4 +1,6 @@
-require('dotenv').config(); 
+// require('dotenv').config(); 
+let myKey = "AIzaSyCSSWcQdA8xhhSc0gF_3zdc-zHn6XWjEls";
+
 const characters = [
     { 
         id: 1, name: "Kaiden", emoji: "🧙‍♂️", image: "./images/kaiden.png", 
