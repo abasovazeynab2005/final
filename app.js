@@ -1,4 +1,5 @@
-// ПЕРСОНАЖИ 
+require('dotenv').config();
+
 const characters = [
     { 
         id: 1, name: "Kaiden", emoji: "🧙‍♂️", image: "images/kaiden.png", 
