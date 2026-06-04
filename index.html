@@ -3,40 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Characters | Janitor Style</title>
+    <title>Персонажи для чата</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <header>
+          <h1 class="logo-text">Jan-chai</h1>
+        <h1>Interactive Chats. Choose your own Story</h1>
+    </header>
 
-    <!-- ЭКРАН С ПЕРСОНАЖАМИ -->
-    <div class="characters-screen" id="charactersScreen">
-        <h1>Выбери персонажа</h1>
-        <div class="characters-grid" id="charactersGrid"></div>
-    </div>
 
-    <!-- ОКНО ЧАТА (сначала скрыто) -->
-    <div class="chat-window" id="chatWindow">
-        <div class="chat-container">
-            <div class="chat-header" id="chatHeader">
-                <button class="back-btn" id="backBtn">←</button>
-                <div class="chat-title">
-                    <span id="charName">Персонаж</span>
-                </div>
-                <button class="close-btn" id="closeBtn">✕</button>
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="message bot">
-                    <div class="bubble">Привет! Я готов помочь </div>
+
+    <div id="main-screen">
+        <h1 class="main-title">Выбери персонажа</h1>
+        <div class="cards-container">
+            <div class="card" data-character="kaiden">
+                <img src="./images/kaiden.png" alt="Kaiden" class="card-image">
+                <div class="card-info">
+                    <div class="card-name">Kaiden</div>
+                    <div class="card-desc">Заботливый одногруппник</div>
                 </div>
             </div>
-            <div class="chat-input-area">
-                <input type="text" id="messageInput" placeholder="Напиши сообщение..." autocomplete="off">
-                <button id="sendBtn">➤</button>
+            <div class="card" data-character="vivien">
+                <img src="./images/vivien.png" alt="Vivien" class="card-image">
+                <div class="card-info">
+                    <div class="card-name">Vivien</div>
+                    <div class="card-desc">Холодная аристократка</div>
+                </div>
+            </div>
+            <div class="card" data-character="soren">
+                <img src="./images/soren.png" alt="Soren" class="card-image">
+                <div class="card-info">
+                    <div class="card-name">Soren</div>
+                    <div class="card-desc">Суровый телохранитель</div>
+                </div>
+            </div>
+            <div class="card" data-character="lilit">
+                <img src="./images/lilit.png" alt="Lilit" class="card-image">
+                <div class="card-info">
+                    <div class="card-name">Lilit</div>
+                    <div class="card-desc">Одинокая наследница</div>
+                </div>
+            </div>
+            <div class="card" data-character="wade">
+                <img src="./images/wade.png" alt="Wade" class="card-image">
+                <div class="card-info">
+                    <div class="card-name">Wade</div>
+                    <div class="card-desc">Душа компании</div>
+                </div>
+            </div>
+            <div class="card" data-character="sera">
+                <img src="./images/sera.png" alt="Sera" class="card-image">
+                <div class="card-info">
+                    <div class="card-name">Sera</div>
+                    <div class="card-desc">Завистливая особа</div>
+                </div>
+            </div>
+            <div class="card" data-character="sabrina">
+                <img src="./images/sabrina.png" alt="Sabrina" class="card-image">
+                <div class="card-info">
+                    <div class="card-name">Sabrina</div>
+                    <div class="card-desc">Испуганная ведьма</div>
+                </div>
+            </div>
+            <div class="card" data-character="luis">
+                <img src="./images/luis.png" alt="Luis" class="card-image">
+                <div class="card-info">
+                    <div class="card-name">Luis</div>
+                    <div class="card-desc">Застенчивый бариста</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- <script src="config.js"></script> -->
+
+    <div id="story-screen" style="display:none;">
+        <div class="story-header">
+            <button id="back-btn">← Назад к персонажам</button>
+            <h2 id="character-name"></h2>
+        </div>
+        <div id="story-card">
+            <p id="story-text"></p>
+        </div>
+        <div id="choices-container"></div>
+    </div>
+
+
+    <footer>
+        <h1>Interactive Chats. Choose your own Story</h1>
+    </footer>
+
     <script src="scr.js"></script>
 </body>
 </html>
