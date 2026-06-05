@@ -58,7 +58,6 @@ header h1 {
 }
 
 main{
-
   width: 90%;
   max-width: 1200px;
   margin: 30px auto;
@@ -66,13 +65,6 @@ main{
   text-align: center;
 }
 
-/* #main-screen {
-  width: 90%;
-  max-width: 1200px;
-  margin: 30px auto;
-  padding: 20px;
-  text-align: center;
-} */
 
 .main-title {
   font-size: 32px;
@@ -158,8 +150,7 @@ main{
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.2s;
-}
+ }
 
 #back-btn:hover {
   background: #D4C0A0;
@@ -317,7 +308,6 @@ footer h1 {
 
   .logo-text {
     font-size: 22px;
-    letter-spacing: 1px;
   }
 
   #main-screen {
