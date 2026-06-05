@@ -46,7 +46,7 @@ function loadStories() {
 
 function attachCardHandlers() {
   let cards = document.querySelectorAll(".card");
-  console.log("🃏 Карточек в HTML:", cards.length);
+ 
 
   
   Array.from(cards).map(function(card) {
@@ -57,8 +57,7 @@ function attachCardHandlers() {
 
     
     hasData && card.addEventListener("click", function() {
-      console.log("👆 Клик:", characterId);
-      openChat(characterId);
+            openChat(characterId);
     });
 
     return card;
