@@ -6,18 +6,41 @@
 
 body {
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #2D1B4E 0%, #1A3A5C 50%, #2D4A6E 100%);
+  background: linear-gradient(135deg, 
+  #2D1B4E 0%,
+   #1A3A5C 50%, 
+   #2D4A6E 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+article {
+    max-width: 850px;
+    margin: 50px auto;
+    padding: 30px;
+
+    background: #1b1b1b;
+    border-left: 5px solid #ffb703;
+    border-radius: 12px;
+
+    color: #bebcbc;
+    line-height: 28px;
+}
+
+article b {
+    display: block;
+    margin-bottom: 15px;
+    color: #ffb703;
+    font-size: 30px;
+}
+
+
 header { 
   background: rgba(45, 27, 78, 0.85);
-  backdrop-filter: blur(8px);
   text-align: center;
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
 }
 
 header h1 {
@@ -30,18 +53,26 @@ header h1 {
   font-weight: bold;
   letter-spacing: 2px;
   margin-bottom: 8px;
-  font-style: italic;
   color: #FFD700;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-#main-screen {
+main{
+
   width: 90%;
   max-width: 1200px;
   margin: 30px auto;
   padding: 20px;
   text-align: center;
 }
+
+/* #main-screen {
+  width: 90%;
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+  text-align: center;
+} */
 
 .main-title {
   font-size: 32px;
@@ -269,119 +300,212 @@ footer h1 {
 }
 
 /* responsive */
-@media screen and (max-width: 768px) {
-  header h1 {
-    font-size: 18px;
+@media screen and (min-width: 375px) and (max-width: 600px) {
+  body {
+    padding-left: 20px;
+    padding-right: 20px;
   }
+
   
+  header {
+    padding: 12px;
+  }
+
+  header h1 {
+    font-size: 16px;
+  }
+
+  .logo-text {
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+
+  #main-screen {
+    width: 95%;
+    margin: 15px auto;
+    padding: 10px;
+  }
+
+  .main-title {
+    font-size: 20px;
+    margin-bottom: 18px;
+  }
+
+  .cards-container {
+    gap: 10px;
+  }
+
+  .card {
+    width: 130px;
+    border-radius: 12px;
+  }
+
+  .card-image {
+    height: 130px;
+  }
+
+  .card-info {
+    padding: 10px;
+    margin: 5px;
+  }
+
+  .card-name {
+    font-size: 13px;
+  }
+
+  .card-desc {
+    font-size: 10px;
+  }
+
+  #story-screen {
+    width: 95%;
+    margin: 10px auto;
+    border-radius: 12px;
+  }
+
+  .story-header {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  #back-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  #character-name {
+    font-size: 16px;
+  }
+
+  #story-card {
+    min-height: 250px;
+    max-height: 350px;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .msg {
+    max-width: 92%;
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: 10px;
+  }
+
+  #choices-container {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .choice-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .ending-text {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  footer {
+    padding: 12px;
+  }
+
+  footer h1 {
+    font-size: 12px;
+  }
+
+  .loading,
+  .error {
+    padding: 20px;
+    font-size: 13px;
+  }
+}
+@media screen and (min-width: 601px) and (max-width: 990px) {
+  
+
+   body {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+
+  header h1 {
+    font-size: 20px;
+  }
+
   .logo-text {
     font-size: 28px;
   }
-  
+
+  #main-screen {
+    width: 90%;
+    margin: 20px auto;
+    padding: 15px;
+  }
+
   .main-title {
-    font-size: 24px;
+    font-size: 26px;
+    margin-bottom: 22px;
   }
-  
+
+  .cards-container {
+    gap: 18px;
+  }
+
   .card {
-    width: 180px;
+    width: 175px;
   }
-  
+
   .card-image {
-    height: 180px;
+    height: 175px;
   }
-  
+
+  .card-info {
+    padding: 15px;
+    margin: 8px;
+  }
+
   .card-name {
     font-size: 16px;
   }
-  
+
   .card-desc {
     font-size: 12px;
   }
-  
+
   #story-screen {
-    width: 95%;
+    width: 75%;
     margin: 20px auto;
   }
-  
+
   #story-card {
-    min-height: 350px;
-    max-height: 450px;
-    padding: 15px;
+    min-height: 320px;
+    max-height: 420px;
+    padding: 16px;
   }
-  
+
   .msg {
-    max-width: 90%;
-    padding: 10px 12px;
+    max-width: 88%;
+    padding: 10px 14px;
     font-size: 13px;
   }
-  
+
+  #choices-container {
+    padding: 12px 16px;
+  }
+
   .choice-btn {
     padding: 10px 14px;
     font-size: 13px;
   }
-  
-  .story-header {
-    padding: 12px 15px;
-  }
-  
+
   #character-name {
     font-size: 18px;
   }
-  
-  footer p {
-    font-size: 11px;
-  }
-}
 
-@media screen and (max-width: 480px) {
-  .cards-container {
-    gap: 15px;
-  }
-  
-  .card {
-    width: 150px;
-  }
-  
-  .card-image {
-    height: 150px;
-  }
-  
-  .card-info {
-    padding: 10px;
-  }
-  
-  .card-name {
+  footer h1 {
     font-size: 14px;
-  }
-  
-  .card-desc {
-    font-size: 11px;
-  }
-  
-  .main-title {
-    font-size: 22px;
-    margin-bottom: 20px;
-  }
-  
-  #story-card {
-    min-height: 300px;
-    max-height: 400px;
-    padding: 12px;
-  }
-  
-  .msg {
-    max-width: 95%;
-    padding: 8px 10px;
-    font-size: 12px;
-  }
-  
-  .choice-btn {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-  
-  .ending-text {
-    font-size: 14px;
-    padding: 8px;
   }
 }
